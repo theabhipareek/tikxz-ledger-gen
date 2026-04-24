@@ -492,6 +492,35 @@ input[type=number] { font-family: var(--mono); }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
+/* ─── MOBILE RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .shell { padding: 16px 12px 80px; }
+  .grid2 { grid-template-columns: 1fr; }
+  .grid3 { grid-template-columns: 1fr 1fr; }
+  .grid4 { grid-template-columns: 1fr 1fr; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .stat-tile:nth-child(2n) { border-right: none; }
+  .stat-tile:nth-child(3), .stat-tile:nth-child(4) { border-top: 1px solid var(--border); }
+  .step-indicator { flex-wrap: wrap; gap: 6px; }
+  .step-line { display: none; }
+  .org-grid { grid-template-columns: 1fr; }
+  .modal { max-width: 100%; margin: 0; }
+  .modal-overlay { padding: 12px; }
+  .topbar { padding: 0 12px; }
+  .preview-frame-wrap iframe { height: 560px; }
+  .period-range { grid-template-columns: 1fr; }
+  .period-sep { display: none; }
+}
+
+@media (max-width: 480px) {
+  .grid3 { grid-template-columns: 1fr; }
+  .grid4 { grid-template-columns: 1fr 1fr; }
+  .ref-builder { grid-template-columns: auto 1fr auto 1fr; }
+  .topbar-right { display: none !important; }
+  .brand { font-size: 11px; }
+  .tab-btn { padding: 5px 8px; font-size: 9px; }
+}
+
 /* ─── TOAST ─── */
 #toast {
   position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
@@ -517,7 +546,18 @@ input[type=number] { font-family: var(--mono); }
       <button class="tab-btn" onclick="switchTab('generate')">Generate Ledger</button>
     </div>
   </div>
-  <div class="topbar-right">LEDGER STUDIO · v2</div>
+  <div class="topbar-right" style="display:flex;align-items:center;gap:10px;">
+    <button class="btn btn-ghost btn-xs" onclick="exportOrgs()" title="Export all organizer profiles as JSON">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </button>
+    <button class="btn btn-ghost btn-xs" onclick="document.getElementById('import-input').click()" title="Import organizer profiles from JSON">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Import
+    </button>
+    <input type="file" id="import-input" accept=".json" style="display:none" onchange="importOrgs(this)">
+    <span style="color:#555;font-family:var(--mono);font-size:10px;letter-spacing:0.5px;">LEDGER STUDIO · v3</span>
+  </div>
 </div>
 
 <div class="shell">
@@ -579,7 +619,7 @@ input[type=number] { font-family: var(--mono); }
         <div id="sel-org-badge" style="font-family:var(--mono);font-size:10px;color:var(--ink3);"></div>
       </div>
       <div class="drop-zone" id="drop-zone">
-        <input type="file" id="csv-input" accept=".csv">
+        <input type="file" id="csv-input" accept=".csv" multiple>
         <div class="drop-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         </div>
@@ -758,14 +798,20 @@ input[type=number] { font-family: var(--mono); }
       <div class="preview-bar">
         <span class="preview-bar-title">LEDGER PREVIEW · PRINT READY</span>
         <div style="display:flex;gap:8px;">
+        <div style="display:flex;gap:8px;">
           <button class="btn btn-outline btn-sm" style="color:#ccc;border-color:#444;" onclick="generateLedger()">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Refresh
+          </button>
+          <button class="btn btn-outline btn-sm" style="color:#ccc;border-color:#444;" onclick="downloadLedger()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download HTML
           </button>
           <button class="btn btn-green btn-sm" onclick="printLedger()">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
             Print / Save PDF
           </button>
+        </div>
         </div>
       </div>
       <div class="preview-frame-wrap">
@@ -855,6 +901,19 @@ let selectedOrgId = null;
 let transactions = [];
 let ticketTypes = {}; // amount -> { name, ticketPrice, pgFee, count }
 let editingOrgId = null;
+let _ledgerHTML = '';
+
+// ═══════════════════════════════════════════════════
+// UTILITY: HTML ESCAPE
+// ═══════════════════════════════════════════════════
+function esc(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 // ═══════════════════════════════════════════════════
 // TABS
@@ -972,6 +1031,40 @@ function deleteOrg(id, e) {
   renderOrgGrid();
   renderGenOrgGrid();
   toast('Organizer deleted');
+}
+
+// ═══════════════════════════════════════════════════
+// ORGANIZER EXPORT / IMPORT
+// ═══════════════════════════════════════════════════
+function exportOrgs() {
+  if (organizers.length === 0) { toast('No organizers to export'); return; }
+  const blob = new Blob([JSON.stringify(organizers, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'tikxz-organizers.json'; a.click();
+  URL.revokeObjectURL(url);
+  toast('Organizers exported');
+}
+
+function importOrgs(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!Array.isArray(data)) throw new Error('Invalid format');
+      const incoming = data.filter(o => o.orgName && o.id);
+      // Merge: update existing IDs, add new ones
+      incoming.forEach(o => {
+        const idx = organizers.findIndex(x => x.id === o.id);
+        if (idx > -1) organizers[idx] = o; else organizers.push(o);
+      });
+      saveOrgs(); renderOrgGrid(); renderGenOrgGrid();
+      toast(`Imported ${incoming.length} organizer(s)`);
+    } catch { toast('Import failed: invalid JSON file'); }
+    input.value = '';
+  };
+  reader.readAsText(file);
 }
 
 // ═══════════════════════════════════════════════════
@@ -1357,28 +1450,32 @@ function updateStepIndicator(active) {
 // GENERATE LEDGER HTML
 // ═══════════════════════════════════════════════════
 function generateLedger() {
+  const org = organizers.find(o => o.id === selectedOrgId);
+  const pgBorneLabel = (org && org.pgBorne === 'organizer') ? 'borne by organizer' : 'borne by customer';
+
   const f = {
-    orgName: document.getElementById('f-org-name').value,
-    orgType: document.getElementById('f-org-type').value,
-    signatory: document.getElementById('f-signatory').value,
-    email: document.getElementById('f-email').value,
-    pan: document.getElementById('f-pan').value,
-    aadhaar: document.getElementById('f-aadhaar').value,
-    gst: document.getElementById('f-gst').value,
-    cin: document.getElementById('f-cin').value,
-    accHolder: document.getElementById('f-acc-holder').value,
-    bank: document.getElementById('f-bank').value,
-    accNo: document.getElementById('f-acc-no').value,
-    ifsc: document.getElementById('f-ifsc').value,
-    settleCycle: document.getElementById('f-settle-cycle').value,
-    settleDate: fmtDateLabel(document.getElementById('f-settle-date').value),
-    transferMode: document.getElementById('f-transfer-mode').value,
-    pgRate: document.getElementById('f-pg-rate').value,
-    platformRate: document.getElementById('f-platform-rate').value,
-    disclaimer: document.getElementById('f-disclaimer').value,
-    ref: document.getElementById('ref-preview').textContent,
-    period: getPeriodLabel(),
-    txnDate: getTxnDateLabel(),
+    orgName:      esc(document.getElementById('f-org-name').value),
+    orgType:      esc(document.getElementById('f-org-type').value),
+    signatory:    esc(document.getElementById('f-signatory').value),
+    email:        esc(document.getElementById('f-email').value),
+    pan:          esc(document.getElementById('f-pan').value),
+    aadhaar:      esc(document.getElementById('f-aadhaar').value),
+    gst:          esc(document.getElementById('f-gst').value),
+    cin:          esc(document.getElementById('f-cin').value),
+    accHolder:    esc(document.getElementById('f-acc-holder').value),
+    bank:         esc(document.getElementById('f-bank').value),
+    accNo:        esc(document.getElementById('f-acc-no').value),
+    ifsc:         esc(document.getElementById('f-ifsc').value),
+    settleCycle:  esc(document.getElementById('f-settle-cycle').value),
+    settleDate:   esc(fmtDateLabel(document.getElementById('f-settle-date').value)),
+    transferMode: esc(document.getElementById('f-transfer-mode').value),
+    pgRate:       esc(document.getElementById('f-pg-rate').value),
+    pgBorneLabel: esc(pgBorneLabel),
+    platformRate: esc(document.getElementById('f-platform-rate').value),
+    disclaimer:   esc(document.getElementById('f-disclaimer').value),
+    ref:          esc(document.getElementById('ref-preview').textContent),
+    period:       esc(getPeriodLabel()),
+    txnDate:      esc(getTxnDateLabel()),
   };
 
   let grossTicket = 0, totalPG = 0;
@@ -1388,10 +1485,11 @@ function generateLedger() {
     const tt = ticketTypes[amt] || { name: 'Unknown', ticketPrice: amt, pgFee: 0 };
     grossTicket += tt.ticketPrice;
     totalPG += tt.pgFee;
-    if (!byType[tt.name]) byType[tt.name] = { ticketPrice: tt.ticketPrice, pgFee: tt.pgFee, count: 0, ticketRev: 0, pgRev: 0 };
-    byType[tt.name].count++;
-    byType[tt.name].ticketRev += tt.ticketPrice;
-    byType[tt.name].pgRev += tt.pgFee;
+    const key = tt.name;
+    if (!byType[key]) byType[key] = { ticketPrice: tt.ticketPrice, pgFee: tt.pgFee, count: 0, ticketRev: 0, pgRev: 0 };
+    byType[key].count++;
+    byType[key].ticketRev += tt.ticketPrice;
+    byType[key].pgRev += tt.pgFee;
   });
 
   const platformPct = parseFloat(f.platformRate) || 0;
@@ -1401,15 +1499,21 @@ function generateLedger() {
   const n = transactions.length;
   const deductParts = Object.entries(byType).map(([nm, d]) => `${d.count} × ₹${fmt(d.pgFee)}`).join(' + ');
 
+  const generatedOn = new Date().toLocaleString('en-IN', {
+    day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', hour12: true
+  });
+
   const txRows = transactions.map((tx, i) => {
     const amt = parseFloat(tx['Order Amount'] || tx['Transaction Amount'] || 0);
     const tt = ticketTypes[amt] || { name: 'Unknown', ticketPrice: amt, pgFee: 0 };
-    const shortId = (tx['Order Id'] || '').slice(-8);
-    const mode = (tx['Payment Mode'] || 'UPI').replace('_', ' ');
+    const shortId = esc((tx['Order Id'] || '').slice(-8));
+    const mode = esc((tx['Payment Mode'] || 'UPI').replace('_', ' '));
+    const ttName = esc(tt.name);
     return `<tr>
       <td>${i+1}</td><td>${fmtDate(tx['Transaction Time'])}</td>
       <td class="mono">ORDER_&hellip;${shortId}</td>
-      <td>${tt.name}</td><td>${mode}</td>
+      <td>${ttName}</td><td>${mode}</td>
       <td class="r">${fmt(tt.ticketPrice)}</td>
       <td class="r">${fmt(tt.pgFee)}</td>
       <td class="r">${fmt(tt.ticketPrice + tt.pgFee)}</td>
@@ -1418,7 +1522,7 @@ function generateLedger() {
   }).join('');
 
   const summaryRows = Object.entries(byType).map(([name, d]) => `<tr>
-    <td>${name}</td><td class="r">${d.count}</td>
+    <td>${esc(name)}</td><td class="r">${d.count}</td>
     <td class="r">${fmt(d.ticketPrice)}</td>
     <td class="r">${fmt(d.ticketRev)}</td>
     <td class="r">${fmt(d.pgRev)}</td>
@@ -1429,7 +1533,7 @@ function generateLedger() {
     <div class="ns-row ns-deduct"><span class="ns-label">Less: Platform Fee (Tikxz)</span><span class="ns-val">&minus; &#8377; ${fmt(platformAmt)}</span></div>` : '';
 
   const deductTableRows = `<tr>
-    <td>Payment Gateway Fee (Cashfree) &nbsp;&middot;&nbsp; ${deductParts}</td>
+    <td>Payment Gateway Fee (Cashfree) &nbsp;&middot;&nbsp; ${esc(deductParts)}</td>
     <td class="r">${f.pgRate} per order</td><td class="r">${n}</td>
     <td class="r neg">(${fmt(totalPG)})</td>
   </tr>
@@ -1560,7 +1664,7 @@ tfoot td.r{text-align:right;font-variant-numeric:tabular-nums}
         <div class="info-row"><span class="info-label">Settlement Cycle</span><span class="info-value">${f.settleCycle}</span></div>
         <hr class="info-divider">
         <div class="info-row"><span class="info-label">Platform Fee (Tikxz)</span><span class="info-value">${f.platformRate}</span></div>
-        <div class="info-row"><span class="info-label">PG Fee (Cashfree)</span><span class="info-value">${f.pgRate}, borne by customer</span></div>
+        <div class="info-row"><span class="info-label">PG Fee (Cashfree)</span><span class="info-value">${f.pgRate}, ${f.pgBorneLabel}</span></div>
         <div class="pg-logo-row">
           <span class="info-label" style="color:#666;">Payment Gateway</span>
           <img src="https://cashfreelogo.cashfree.com/website/landings/homepage/cashfreeLogo.png" alt="Cashfree" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
@@ -1571,7 +1675,7 @@ tfoot td.r{text-align:right;font-variant-numeric:tabular-nums}
     <div class="sec-head" style="margin-top:0;">Collection Summary</div>
     <div class="stat-row">
       <div class="stat-cell"><div class="st-label">Gross Ticket Revenue</div><div class="st-val">&#8377;${fmt(grossTicket)}</div><div class="st-note">Face value &middot; ${n} orders</div></div>
-      <div class="stat-cell"><div class="st-label">PG Transaction Fees</div><div class="st-val">&#8377;${fmt(totalPG)}</div><div class="st-note">Cashfree &middot; paid by customer</div></div>
+      <div class="stat-cell"><div class="st-label">PG Transaction Fees</div><div class="st-val">&#8377;${fmt(totalPG)}</div><div class="st-note">Cashfree &middot; ${f.pgBorneLabel}</div></div>
       <div class="stat-cell"><div class="st-label">Total Refunds</div><div class="st-val">&#8377;0.00</div><div class="st-note">0 refunds</div></div>
       <div class="stat-cell"><div class="st-label">Net Payable to Organiser</div><div class="st-val">&#8377;${fmt(net)}</div><div class="st-note">After all deductions</div></div>
     </div>
@@ -1668,7 +1772,7 @@ tfoot td.r{text-align:right;font-variant-numeric:tabular-nums}
     <div class="disclaimer"><strong>Note:</strong> ${f.disclaimer}</div>
   </div>
   <div class="page-footer">
-    <div class="pf-left">Confidential &middot; For Organiser Use Only</div>
+    <div class="pf-left">Confidential &middot; For Organiser Use Only &middot; Generated ${esc(generatedOn)}</div>
     <div class="pf-center">Tikxz &middot; www.tikxz.com &middot; support@tikxz.com &middot; +91 94046 35944</div>
     <div class="pf-right">Page 2 of 2</div>
   </div>
@@ -1676,6 +1780,7 @@ tfoot td.r{text-align:right;font-variant-numeric:tabular-nums}
 
 </body></html>`;
 
+  _ledgerHTML = html;
   const iframe = document.getElementById('preview-iframe');
   iframe.srcdoc = html;
 
@@ -1693,10 +1798,27 @@ function printLedger() {
 }
 
 // ═══════════════════════════════════════════════════
+// DOWNLOAD HTML
+// ═══════════════════════════════════════════════════
+function downloadLedger() {
+  if (!_ledgerHTML) { toast('Generate the ledger first'); return; }
+  const org = organizers.find(o => o.id === selectedOrgId);
+  const orgSlug = (org ? org.orgName : 'ledger').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+  const ref = document.getElementById('ref-preview').textContent.replace(/\s*\/\s*/g, '-');
+  const filename = `tikxz-ledger-${orgSlug}-${ref}.html`;
+  const blob = new Blob([_ledgerHTML], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+  toast('Ledger downloaded');
+}
+
+// ═══════════════════════════════════════════════════
 // RESET
 // ═══════════════════════════════════════════════════
 function resetGenerate() {
-  transactions = []; ticketTypes = {}; selectedOrgId = null;
+  transactions = []; ticketTypes = {}; selectedOrgId = null; _ledgerHTML = '';
   document.getElementById('csv-input').value = '';
   document.getElementById('csv-alert').style.display = 'none';
   document.getElementById('gen-step2').style.display = 'none';
@@ -1711,14 +1833,17 @@ function resetGenerate() {
 // FILE INPUT
 // ═══════════════════════════════════════════════════
 document.getElementById('csv-input').addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const rows = parseCSV(ev.target.result);
-    processRows(rows);
-  };
-  reader.readAsText(file);
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+  let allRows = [], loaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      allRows = allRows.concat(parseCSV(ev.target.result));
+      if (++loaded === files.length) processRows(allRows);
+    };
+    reader.readAsText(file);
+  });
 });
 
 const dz = document.getElementById('drop-zone');
@@ -1726,11 +1851,17 @@ dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dra
 dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
 dz.addEventListener('drop', e => {
   e.preventDefault(); dz.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => processRows(parseCSV(ev.target.result));
-  reader.readAsText(file);
+  const files = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.csv'));
+  if (!files.length) return;
+  let allRows = [], loaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      allRows = allRows.concat(parseCSV(ev.target.result));
+      if (++loaded === files.length) processRows(allRows);
+    };
+    reader.readAsText(file);
+  });
 });
 
 // Live re-render
@@ -1774,1193 +1905,6 @@ if (organizers.length === 0) {
   saveOrgs();
   renderOrgGrid();
 }
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tikxz · Ledger Generator</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-<style>
-:root {
-  --ink: #0f0f0f;
-  --ink2: #444;
-  --ink3: #888;
-  --surface: #f5f4f0;
-  --card: #ffffff;
-  --border: #e2e0d8;
-  --accent: #1c1c1c;
-  --green: #1a7a45;
-  --green-bg: #eaf5ee;
-  --red: #b91c1c;
-  --mono: 'DM Mono', monospace;
-  --sans: 'DM Sans', sans-serif;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: var(--sans);
-  background: var(--surface);
-  color: var(--ink);
-  min-height: 100vh;
-}
-
-/* ─── TOPBAR ─────────────────────────────── */
-.topbar {
-  background: var(--ink);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-  height: 52px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.topbar-brand {
-  font-family: var(--mono);
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.topbar-brand .dot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: #fff;
-  opacity: 0.3;
-}
-.topbar-sub {
-  font-size: 11px;
-  color: #aaa;
-  font-family: var(--mono);
-  letter-spacing: 0.5px;
-}
-
-/* ─── LAYOUT ─────────────────────────────── */
-.shell {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 36px 24px 80px;
-}
-
-/* ─── UPLOAD ZONE ────────────────────────── */
-#upload-section {
-  margin-bottom: 32px;
-}
-
-.upload-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-  color: var(--ink3);
-  margin-bottom: 10px;
-  display: block;
-}
-
-.drop-zone {
-  border: 2px dashed var(--border);
-  border-radius: 4px;
-  background: var(--card);
-  padding: 48px 32px;
-  text-align: center;
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-  position: relative;
-}
-.drop-zone.drag-over {
-  border-color: var(--ink);
-  background: #fafaf8;
-}
-.drop-zone input[type=file] {
-  position: absolute; inset: 0; opacity: 0; cursor: pointer;
-}
-.drop-icon {
-  width: 40px; height: 40px;
-  margin: 0 auto 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-}
-.drop-icon svg { opacity: 0.4; }
-.drop-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--ink);
-  margin-bottom: 6px;
-}
-.drop-sub {
-  font-size: 12px;
-  color: var(--ink3);
-  font-family: var(--mono);
-}
-
-.file-badge {
-  display: none;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: var(--green-bg);
-  border: 1px solid #bfe0cc;
-  border-radius: 4px;
-  margin-top: 12px;
-  font-size: 12px;
-  font-family: var(--mono);
-  color: var(--green);
-}
-.file-badge.show { display: flex; }
-.file-badge svg { flex-shrink: 0; }
-
-/* ─── EDITOR PANELS ──────────────────────── */
-#editor-section { display: none; }
-#editor-section.show { display: block; }
-
-.panel-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.panel {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-}
-.panel-full { grid-column: 1 / -1; }
-
-.panel-head {
-  background: #f8f7f3;
-  border-bottom: 1px solid var(--border);
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.panel-head-title {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.3px;
-  text-transform: uppercase;
-  color: var(--ink2);
-}
-.panel-body { padding: 16px; }
-
-/* form fields */
-.field-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.field-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
-
-.field { display: flex; flex-direction: column; gap: 5px; }
-.field.full { grid-column: 1 / -1; }
-
-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  color: var(--ink3);
-}
-input[type=text], input[type=date], select, textarea {
-  font-family: var(--sans);
-  font-size: 13px;
-  color: var(--ink);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  padding: 7px 10px;
-  outline: none;
-  transition: border-color 0.12s;
-  width: 100%;
-}
-input:focus, select:focus, textarea:focus {
-  border-color: var(--ink);
-  background: #fff;
-}
-textarea { resize: vertical; min-height: 56px; font-size: 12px; }
-
-/* ticket type table */
-.ttype-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-.ttype-table th {
-  text-align: left;
-  font-size: 9px;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  color: var(--ink3);
-  font-weight: 600;
-  padding: 6px 8px;
-  border-bottom: 1px solid var(--border);
-}
-.ttype-table td {
-  padding: 6px 8px;
-  border-bottom: 1px solid #f0ede5;
-  vertical-align: middle;
-}
-.ttype-table td input {
-  padding: 4px 7px;
-  font-size: 12px;
-}
-.ttype-table tr:last-child td { border-bottom: none; }
-.ttype-table .td-name { font-weight: 500; font-family: var(--mono); font-size: 11px; color: var(--ink2); }
-.ttype-table .td-count { text-align: center; font-family: var(--mono); font-weight: 600; color: var(--ink); }
-
-/* stats bar */
-.stats-bar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 16px;
-}
-.stat-tile {
-  padding: 14px 16px;
-  border-right: 1px solid var(--border);
-  background: var(--card);
-}
-.stat-tile:last-child { border-right: none; background: #f8f7f3; }
-.stat-tile-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  color: var(--ink3);
-  margin-bottom: 6px;
-}
-.stat-tile-val {
-  font-size: 18px;
-  font-weight: 700;
-  font-family: var(--mono);
-  color: var(--ink);
-  line-height: 1;
-}
-.stat-tile-note { font-size: 10px; color: var(--ink3); margin-top: 4px; }
-
-/* action bar */
-.action-bar {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-top: 20px;
-}
-
-.btn {
-  font-family: var(--sans);
-  font-size: 13px;
-  font-weight: 600;
-  padding: 10px 22px;
-  border-radius: 3px;
-  cursor: pointer;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: opacity 0.12s, transform 0.1s;
-  letter-spacing: 0.2px;
-}
-.btn:active { transform: scale(0.98); }
-.btn-primary {
-  background: var(--ink);
-  color: #fff;
-}
-.btn-primary:hover { opacity: 0.88; }
-.btn-outline {
-  background: transparent;
-  color: var(--ink);
-  border: 1.5px solid var(--border);
-}
-.btn-outline:hover { border-color: var(--ink); }
-.btn-print {
-  background: #1a7a45;
-  color: #fff;
-}
-.btn-print:hover { opacity: 0.88; }
-
-/* tx rows */
-.tx-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-.tx-table th {
-  text-align: left;
-  font-size: 9px;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  color: var(--ink3);
-  font-weight: 600;
-  padding: 7px 8px;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-.tx-table td {
-  padding: 6px 8px;
-  border-bottom: 1px solid #f0ede5;
-  vertical-align: middle;
-}
-.tx-table tr:last-child td { border-bottom: none; }
-.tx-table .mono { font-family: var(--mono); font-size: 10px; color: #666; }
-.tx-table select { font-size: 11px; padding: 3px 6px; }
-.pill { display: inline-block; padding: 2px 6px; border-radius: 2px; font-size: 9px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; }
-.pill-ok { background: #eaf5ee; color: #1a7a45; border: 1px solid #bfe0cc; }
-
-/* ─── PREVIEW ────────────────────────────── */
-#preview-section { display: none; margin-top: 24px; }
-#preview-section.show { display: block; }
-
-.preview-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.preview-bar-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.2px;
-  text-transform: uppercase;
-  color: var(--ink2);
-}
-
-.preview-frame-wrap {
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-  background: #ccc;
-}
-.preview-frame-wrap iframe {
-  width: 100%;
-  height: 820px;
-  border: none;
-  display: block;
-}
-
-/* ─── PRINT STYLES (applied inside iframe) ─ */
-</style>
-</head>
-<body>
-
-<div class="topbar">
-  <div class="topbar-brand">
-    <span class="dot"></span>
-    TIKXZ
-    <span style="opacity:0.3;margin:0 4px;">·</span>
-    <span style="opacity:0.5;font-weight:400;">Ledger Generator</span>
-  </div>
-  <div class="topbar-sub">NYMUN · Internal Tool</div>
-</div>
-
-<div class="shell">
-
-  <!-- STEP 1: UPLOAD -->
-  <div id="upload-section">
-    <span class="upload-label">Step 1 — Upload Cashfree Transaction CSV</span>
-    <div class="drop-zone" id="drop-zone">
-      <input type="file" id="csv-input" accept=".csv">
-      <div class="drop-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      </div>
-      <div class="drop-title">Drop your CSV here or click to browse</div>
-      <div class="drop-sub">Cashfree transaction export · .csv</div>
-    </div>
-    <div class="file-badge" id="file-badge">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-      <span id="file-badge-name">file.csv</span>
-    </div>
-  </div>
-
-  <!-- STEP 2: EDITOR -->
-  <div id="editor-section">
-
-    <!-- COMPUTED STATS -->
-    <div class="stats-bar" id="stats-bar">
-      <div class="stat-tile">
-        <div class="stat-tile-label">Gross Ticket Revenue</div>
-        <div class="stat-tile-val" id="stat-gross">₹0</div>
-        <div class="stat-tile-note" id="stat-orders">0 orders</div>
-      </div>
-      <div class="stat-tile">
-        <div class="stat-tile-label">PG Fees Collected</div>
-        <div class="stat-tile-val" id="stat-pg">₹0</div>
-        <div class="stat-tile-note">Cashfree · customer paid</div>
-      </div>
-      <div class="stat-tile">
-        <div class="stat-tile-label">Total Refunds</div>
-        <div class="stat-tile-val">₹0.00</div>
-        <div class="stat-tile-note">0 refunds</div>
-      </div>
-      <div class="stat-tile">
-        <div class="stat-tile-label">Net Payable</div>
-        <div class="stat-tile-val" id="stat-net">₹0</div>
-        <div class="stat-tile-note">After all deductions</div>
-      </div>
-    </div>
-
-    <div class="panel-row">
-      <!-- ORGANISER INFO -->
-      <div class="panel">
-        <div class="panel-head">
-          <span class="panel-head-title">Organiser Information</span>
-        </div>
-        <div class="panel-body">
-          <div class="field-grid">
-            <div class="field full"><label>Organisation Name</label><input type="text" id="f-org-name" value="Nashik Youth Model United Nations"></div>
-            <div class="field full"><label>Organisation Type</label><input type="text" id="f-org-type" value="MUN, Private Individual"></div>
-            <div class="field full"><label>Authorised Signatory</label><input type="text" id="f-signatory" value="Nilesh Gurule"></div>
-            <div class="field full"><label>Email</label><input type="text" id="f-email" value="nashikyouthmodelunitednations@gmail.com"></div>
-            <div class="field"><label>PAN Number</label><input type="text" id="f-pan" value="AGMPG••••B"></div>
-            <div class="field"><label>Aadhaar (masked)</label><input type="text" id="f-aadhaar" value="XXXX XXXX 6235"></div>
-            <div class="field"><label>GST Number</label><input type="text" id="f-gst" value="N/A"></div>
-            <div class="field"><label>CIN / LLPIN</label><input type="text" id="f-cin" value="N/A"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- BANK & SETTLEMENT -->
-      <div class="panel">
-        <div class="panel-head">
-          <span class="panel-head-title">Bank &amp; Settlement Details</span>
-        </div>
-        <div class="panel-body">
-          <div class="field-grid">
-            <div class="field full"><label>Account Holder</label><input type="text" id="f-acc-holder" value="Nilesh Gurule"></div>
-            <div class="field full"><label>Bank Name</label><input type="text" id="f-bank" value="DCB Bank"></div>
-            <div class="field full"><label>Account Number (masked)</label><input type="text" id="f-acc-no" value="0951 XXXX XXXX 4508"></div>
-            <div class="field"><label>IFSC Code</label><input type="text" id="f-ifsc" value="DCBL0000095"></div>
-            <div class="field"><label>Settlement Cycle</label><input type="text" id="f-cycle" value="T+2"></div>
-            <div class="field"><label>Settlement Date</label><input type="date" id="f-settle-date"></div>
-            <div class="field"><label>Transfer Mode</label><input type="text" id="f-transfer-mode" value="Bank Transfer"></div>
-            <div class="field"><label>PG Fee %</label><input type="text" id="f-pg-pct" value="0.80%"></div>
-            <div class="field full"><label>Platform Fee (Tikxz)</label><input type="text" id="f-platform-fee" value="0.00% (Nil)"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- DOC META -->
-    <div class="panel-row">
-      <div class="panel">
-        <div class="panel-head"><span class="panel-head-title">Document Meta</span></div>
-        <div class="panel-body">
-          <div class="field-grid field-grid-3">
-            <div class="field"><label>Ref Number</label><input type="text" id="f-ref" value="TXZ / 2026 / 04 / NYMUN-003"></div>
-            <div class="field"><label>Period</label><input type="text" id="f-period" value="23 April 2026"></div>
-            <div class="field"><label>Transaction Date</label><input type="text" id="f-txn-date" value="23 April 2026"></div>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><span class="panel-head-title">Disclaimer / Footer Note</span></div>
-        <div class="panel-body">
-          <textarea id="f-disclaimer">This statement is system-generated by the Tikxz platform based on verified transaction records. Sensitive fields (PAN, Aadhaar, Account Number) have been partially masked for security compliance. PG transaction fees are collected from the customer at checkout and are not deducted from the organiser's ticket face value. No refunds were processed on this date. This document does not constitute a tax invoice. For queries, contact support@tikxz.com or call +91 94046 35944.</textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- TICKET TYPES -->
-    <div class="panel" style="margin-bottom:16px;">
-      <div class="panel-head">
-        <span class="panel-head-title">Ticket Type Mapping &amp; Pricing</span>
-        <span style="font-size:10px;color:var(--ink3);">Assign ticket types · edit names &amp; prices</span>
-      </div>
-      <div class="panel-body" style="padding:0;">
-        <table class="ttype-table">
-          <thead>
-            <tr>
-              <th>Detected Amount (₹)</th>
-              <th>Ticket Name</th>
-              <th>Ticket Price (₹)</th>
-              <th>PG Fee (₹)</th>
-              <th>Count</th>
-            </tr>
-          </thead>
-          <tbody id="ttype-body">
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- TRANSACTIONS -->
-    <div class="panel" style="margin-bottom:16px;">
-      <div class="panel-head">
-        <span class="panel-head-title">Transaction Log</span>
-        <span style="font-size:10px;color:var(--ink3);" id="tx-count-label">0 transactions</span>
-      </div>
-      <div class="panel-body" style="padding:0; overflow-x:auto;">
-        <table class="tx-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Date &amp; Time</th>
-              <th>Order Reference</th>
-              <th>Ticket Type</th>
-              <th>Mode</th>
-              <th style="text-align:right;">Ticket (₹)</th>
-              <th style="text-align:right;">PG Fee (₹)</th>
-              <th style="text-align:right;">Total (₹)</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="tx-body"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="action-bar">
-      <button class="btn btn-primary" onclick="generateLedger()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        Generate Ledger
-      </button>
-      <button class="btn btn-outline" onclick="resetAll()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-        Start Over
-      </button>
-    </div>
-  </div>
-
-  <!-- PREVIEW -->
-  <div id="preview-section">
-    <div class="preview-bar">
-      <span class="preview-bar-title">Ledger Preview</span>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-outline" onclick="document.getElementById('editor-section').scrollIntoView({behavior:'smooth'})">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          Edit
-        </button>
-        <button class="btn btn-print" onclick="printLedger()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          Print / Save PDF
-        </button>
-      </div>
-    </div>
-    <div class="preview-frame-wrap">
-      <iframe id="preview-iframe" title="Ledger Preview"></iframe>
-    </div>
-  </div>
-
-</div>
-
-<script>
-// ─── State ───────────────────────────────────────────────
-let transactions = [];
-let ticketTypes = {}; // amount -> { name, ticketPrice, pgFee, count }
-
-// ─── CSV Parsing ──────────────────────────────────────────
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,''));
-  return lines.slice(1).map(line => {
-    const vals = smartSplit(line);
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = (vals[i]||'').trim().replace(/^"|"$/g,''));
-    return obj;
-  });
-}
-
-function smartSplit(line) {
-  const result = [];
-  let cur = '', inQ = false;
-  for (let c of line) {
-    if (c === '"') { inQ = !inQ; }
-    else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
-    else cur += c;
-  }
-  result.push(cur);
-  return result;
-}
-
-function fmt(n) {
-  return Number(n).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
-}
-
-function fmtDate(dt) {
-  // "2026-04-23 00:09:41" → "23 Apr  00:09"
-  const d = new Date(dt);
-  const day = d.getDate().toString().padStart(2,'0');
-  const mon = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
-  const hh = d.getHours().toString().padStart(2,'0');
-  const mm = d.getMinutes().toString().padStart(2,'0');
-  return `${day} ${mon}&nbsp;${hh}:${mm}`;
-}
-
-function fmtDateLabel(dt) {
-  const d = new Date(dt);
-  const day = d.getDate();
-  const mon = ['January','February','March','April','May','June','July','August','September','October','November','December'][d.getMonth()];
-  return `${day} ${mon} ${d.getFullYear()}`;
-}
-
-function addDays(dt, n) {
-  const d = new Date(dt);
-  d.setDate(d.getDate() + n);
-  return d;
-}
-function dateToInput(d) {
-  return d.toISOString().split('T')[0];
-}
-
-// ─── CSV Load ─────────────────────────────────────────────
-function loadCSV(file) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    const rows = parseCSV(e.target.result);
-    processRows(rows);
-  };
-  reader.readAsText(file);
-}
-
-function processRows(rows) {
-  transactions = rows.filter(r => r['Transaction Status'] === 'SUCCESS' || r['Transaction Status'] === 'CAPTURED');
-  if (!transactions.length) transactions = rows; // fallback: show all
-
-  // Sort chronologically
-  transactions.sort((a, b) => new Date(a['Transaction Time']) - new Date(b['Transaction Time']));
-
-  // Detect unique amounts → ticket types
-  ticketTypes = {};
-  transactions.forEach(tx => {
-    const amt = parseInt(tx['Order Amount'] || tx['Transaction Amount'] || 0);
-    if (!ticketTypes[amt]) {
-      // Default names based on known prices
-      let name = amt === 3124 ? 'MUN + Socials' : amt === 2217 ? 'MUN Only' : `Ticket ₹${amt}`;
-      let ticketPrice = Math.round(amt / 1.008); // rough reverse of 0.8%
-      // Override with known
-      if (amt === 3124) { ticketPrice = 3099; }
-      if (amt === 2217) { ticketPrice = 2199; }
-      ticketTypes[amt] = { name, ticketPrice, pgFee: amt - ticketPrice, count: 0 };
-    }
-    ticketTypes[amt].count++;
-  });
-
-  // Auto-fill period & settle date from earliest/latest tx
-  const dates = transactions.map(tx => new Date(tx['Transaction Time']));
-  const minDate = new Date(Math.min(...dates));
-  const maxDate = new Date(Math.max(...dates));
-
-  const periodLabel = fmtDateLabel(minDate);
-  const txnDateLabel = fmtDateLabel(minDate);
-  const settleDate = addDays(minDate, 2);
-
-  document.getElementById('f-period').value = periodLabel;
-  document.getElementById('f-txn-date').value = txnDateLabel;
-  document.getElementById('f-settle-date').value = dateToInput(settleDate);
-
-  // Settle date formatted label
-  const settleDateLabel = fmtDateLabel(settleDate);
-
-  renderTicketTypes();
-  renderTransactions();
-  updateStats();
-
-  document.getElementById('editor-section').classList.add('show');
-  document.getElementById('editor-section').scrollIntoView({behavior:'smooth', block:'start'});
-}
-
-// ─── Render ticket type rows ──────────────────────────────
-function renderTicketTypes() {
-  const tbody = document.getElementById('ttype-body');
-  tbody.innerHTML = '';
-  Object.entries(ticketTypes).forEach(([amt, tt]) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td class="td-name mono">₹${fmt(amt)}</td>
-      <td><input type="text" value="${tt.name}" onchange="updateTType(${amt},'name',this.value)" style="min-width:160px;"></td>
-      <td><input type="text" value="${tt.ticketPrice}" onchange="updateTType(${amt},'ticketPrice',+this.value)" style="width:90px;"></td>
-      <td><input type="text" value="${tt.pgFee}" onchange="updateTType(${amt},'pgFee',+this.value)" style="width:80px;"></td>
-      <td class="td-count">${tt.count}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function updateTType(amt, field, val) {
-  ticketTypes[amt][field] = val;
-  renderTransactions();
-  updateStats();
-}
-
-// ─── Render transaction rows ──────────────────────────────
-function renderTransactions() {
-  const tbody = document.getElementById('tx-body');
-  tbody.innerHTML = '';
-  transactions.forEach((tx, i) => {
-    const amt = parseInt(tx['Order Amount'] || tx['Transaction Amount'] || 0);
-    const tt = ticketTypes[amt] || { name: 'Unknown', ticketPrice: amt, pgFee: 0 };
-    const orderId = tx['Order Id'] || '';
-    const shortId = orderId.slice(-8);
-    const mode = (tx['Payment Mode']||'UPI').replace('_',' ');
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${i+1}</td>
-      <td>${fmtDate(tx['Transaction Time'])}</td>
-      <td class="mono">ORDER_…${shortId}</td>
-      <td>
-        <select onchange="reassignType(${i}, +this.value)">
-          ${Object.entries(ticketTypes).map(([a, t]) =>
-            `<option value="${a}" ${parseInt(a)===amt?'selected':''}>${t.name}</option>`
-          ).join('')}
-        </select>
-      </td>
-      <td>${mode}</td>
-      <td style="text-align:right;font-family:var(--mono);">${fmt(tt.ticketPrice)}</td>
-      <td style="text-align:right;font-family:var(--mono);">${fmt(tt.pgFee)}</td>
-      <td style="text-align:right;font-family:var(--mono);">${fmt(tt.ticketPrice + tt.pgFee)}</td>
-      <td><span class="pill pill-ok">Settled</span></td>
-    `;
-    tbody.appendChild(tr);
-  });
-  document.getElementById('tx-count-label').textContent = `${transactions.length} transactions`;
-}
-
-function reassignType(idx, newAmt) {
-  transactions[idx]['Order Amount'] = newAmt;
-  updateStats();
-  renderTransactions();
-}
-
-function updateStats() {
-  let gross = 0, pg = 0;
-  transactions.forEach(tx => {
-    const amt = parseInt(tx['Order Amount'] || tx['Transaction Amount'] || 0);
-    const tt = ticketTypes[amt] || { ticketPrice: amt, pgFee: 0 };
-    gross += tt.ticketPrice;
-    pg += tt.pgFee;
-  });
-  document.getElementById('stat-gross').textContent = '₹' + fmt(gross);
-  document.getElementById('stat-pg').textContent = '₹' + fmt(pg);
-  document.getElementById('stat-net').textContent = '₹' + fmt(gross);
-  document.getElementById('stat-orders').textContent = `${transactions.length} orders`;
-}
-
-// ─── Gather form values ───────────────────────────────────
-function gatherFields() {
-  return {
-    orgName: document.getElementById('f-org-name').value,
-    orgType: document.getElementById('f-org-type').value,
-    signatory: document.getElementById('f-signatory').value,
-    email: document.getElementById('f-email').value,
-    pan: document.getElementById('f-pan').value,
-    aadhaar: document.getElementById('f-aadhaar').value,
-    gst: document.getElementById('f-gst').value,
-    cin: document.getElementById('f-cin').value,
-    accHolder: document.getElementById('f-acc-holder').value,
-    bank: document.getElementById('f-bank').value,
-    accNo: document.getElementById('f-acc-no').value,
-    ifsc: document.getElementById('f-ifsc').value,
-    settleCycle: document.getElementById('f-cycle').value,
-    settleDate: (() => {
-      const v = document.getElementById('f-settle-date').value;
-      if (!v) return '';
-      return fmtDateLabel(v + 'T00:00:00');
-    })(),
-    settleDateRaw: document.getElementById('f-settle-date').value,
-    transferMode: document.getElementById('f-transfer-mode').value,
-    pgPct: document.getElementById('f-pg-pct').value,
-    platformFee: document.getElementById('f-platform-fee').value,
-    ref: document.getElementById('f-ref').value,
-    period: document.getElementById('f-period').value,
-    txnDate: document.getElementById('f-txn-date').value,
-    disclaimer: document.getElementById('f-disclaimer').value,
-  };
-}
-
-// ─── Generate HTML ────────────────────────────────────────
-function generateLedger() {
-  const f = gatherFields();
-
-  // Compute totals
-  let grossTicket = 0, totalPG = 0;
-  // By type
-  const byType = {};
-  transactions.forEach(tx => {
-    const amt = parseInt(tx['Order Amount'] || tx['Transaction Amount'] || 0);
-    const tt = ticketTypes[amt] || { name: 'Unknown', ticketPrice: amt, pgFee: 0 };
-    grossTicket += tt.ticketPrice;
-    totalPG += tt.pgFee;
-    if (!byType[tt.name]) byType[tt.name] = { ticketPrice: tt.ticketPrice, pgFee: tt.pgFee, count: 0, ticketRev: 0, pgRev: 0 };
-    byType[tt.name].count++;
-    byType[tt.name].ticketRev += tt.ticketPrice;
-    byType[tt.name].pgRev += tt.pgFee;
-  });
-  const totalCollected = grossTicket + totalPG;
-  const n = transactions.length;
-
-  // Build deduction string
-  const deductParts = Object.entries(byType).map(([name, d]) => `${d.count} × ₹${fmt(d.pgFee)}`).join(' + ');
-
-  // TX rows HTML
-  const txRows = transactions.map((tx, i) => {
-    const amt = parseInt(tx['Order Amount'] || tx['Transaction Amount'] || 0);
-    const tt = ticketTypes[amt] || { name: 'Unknown', ticketPrice: amt, pgFee: 0 };
-    const orderId = tx['Order Id'] || '';
-    const shortId = orderId.slice(-8);
-    const mode = (tx['Payment Mode']||'UPI').replace('_',' ');
-    return `<tr>
-      <td>${i+1}</td><td>${fmtDate(tx['Transaction Time'])}</td>
-      <td class="mono">ORDER_&hellip;${shortId}</td>
-      <td>${tt.name}</td><td>${mode}</td>
-      <td class="r">${fmt(tt.ticketPrice)}</td>
-      <td class="r">${fmt(tt.pgFee)}</td>
-      <td class="r">${fmt(tt.ticketPrice + tt.pgFee)}</td>
-      <td><span class="pill pill-ok">Settled</span></td>
-    </tr>`;
-  }).join('');
-
-  // Summary table rows
-  const summaryRows = Object.entries(byType).map(([name, d]) => `<tr>
-    <td>${name}</td>
-    <td class="r">${d.count}</td>
-    <td class="r">${fmt(d.ticketPrice)}</td>
-    <td class="r">${fmt(d.ticketRev)}</td>
-    <td class="r">${fmt(d.pgRev)}</td>
-    <td class="r">${fmt(d.ticketRev + d.pgRev)}</td>
-  </tr>`).join('');
-
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Transaction Ledger – ${f.orgName} | Tikxz</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: #d0d2d8; font-family: 'Inter', sans-serif; font-size: 12px; color: #1c1c1c; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .print-page { width: 794px; min-height: 1123px; margin: 36px auto; background: #fff; box-shadow: 0 6px 48px rgba(0,0,0,0.18); display: flex; flex-direction: column; }
-  .print-page + .print-page { margin-top: 52px; }
-  .lh-header { padding: 14px 36px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #dde0e5; flex-shrink: 0; }
-  .lh-logo img { height: 26px; object-fit: contain; display: block; }
-  .lh-logo-text { font-size: 16px; font-weight: 700; color: #111; letter-spacing: -0.5px; display: none; }
-  .lh-contact { text-align: right; font-size: 8.5px; color: #666; line-height: 1.85; }
-  .lh-rule { height: 3px; background: #1c1c1c; flex-shrink: 0; }
-  .doc-title-band { background: #f4f5f7; border-bottom: 1px solid #dde0e5; padding: 8px 36px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-shrink: 0; }
-  .doc-title-band h1 { font-size: 11.5px; font-weight: 700; color: #111; letter-spacing: 0.4px; text-transform: uppercase; white-space: nowrap; }
-  .doc-ref { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-  .doc-ref .ref-meta { text-align: right; font-size: 8.5px; color: #666; line-height: 1.55; }
-  .doc-ref .ref-meta strong { display: block; color: #333; font-size: 8.5px; font-weight: 600; }
-  .ref-pill { display: inline-block; background: #1c1c1c; color: #fff; font-size: 7.5px; font-weight: 600; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 2px; white-space: nowrap; }
-  .pg-label { font-size: 8px; color: #aaa; white-space: nowrap; }
-  .body-pad { padding: 15px 36px; flex: 1; }
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #dde0e5; margin-bottom: 13px; }
-  .info-col { padding: 9px 13px; }
-  .info-col + .info-col { border-left: 1px solid #dde0e5; }
-  .info-col-title { font-size: 7.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #999; margin-bottom: 7px; padding-bottom: 5px; border-bottom: 1px solid #eee; }
-  .info-row { display: flex; justify-content: space-between; align-items: baseline; padding: 2px 0; }
-  .info-label { font-size: 9.5px; color: #666; }
-  .info-value { font-size: 9.5px; color: #111; font-weight: 500; text-align: right; max-width: 58%; }
-  .info-divider { border: none; border-top: 1px solid #eee; margin: 5px 0; }
-  .pg-logo-row { display: flex; justify-content: space-between; align-items: center; padding-top: 6px; margin-top: 6px; border-top: 1px solid #eee; }
-  .pg-logo-row img { height: 13px; object-fit: contain; }
-  .pg-fallback { font-size: 9.5px; font-weight: 500; color: #111; display: none; }
-  .sec-head { font-size: 7.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.1px; color: #444; margin: 12px 0 6px; padding-bottom: 4px; border-bottom: 1.5px solid #1c1c1c; }
-  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid #dde0e5; margin-bottom: 13px; }
-  .stat-cell { padding: 8px 10px 7px; border-right: 1px solid #dde0e5; background: #fafafa; }
-  .stat-cell:last-child { border-right: none; background: #f0f1f3; }
-  .st-label { font-size: 7px; text-transform: uppercase; letter-spacing: 0.7px; color: #888; font-weight: 600; margin-bottom: 3px; }
-  .st-val { font-size: 12.5px; font-weight: 700; color: #111; line-height: 1; }
-  .st-note { font-size: 7px; color: #aaa; margin-top: 3px; }
-  table { width: 100%; border-collapse: collapse; font-size: 9.5px; margin-bottom: 2px; }
-  thead tr { background: #1c1c1c; color: #fff; }
-  thead th { padding: 5px 7px; text-align: left; font-weight: 500; font-size: 8.5px; letter-spacing: 0.2px; }
-  thead th.r { text-align: right; }
-  tbody tr { border-bottom: 1px solid #eef0f3; }
-  tbody tr:nth-child(even) { background: #f8f9fa; }
-  tbody td { padding: 4px 7px; color: #222; vertical-align: middle; }
-  tbody td.r { text-align: right; font-variant-numeric: tabular-nums; }
-  tbody td.mono { font-family: 'Courier New', monospace; font-size: 8px; color: #555; }
-  tbody td.neg { color: #b91c1c; }
-  tfoot tr { background: #ededf0; }
-  tfoot td { padding: 5.5px 7px; font-weight: 700; font-size: 9.5px; border-top: 1.5px solid #1c1c1c; color: #111; }
-  tfoot td.r { text-align: right; font-variant-numeric: tabular-nums; }
-  .pill { display: inline-block; padding: 1.5px 5px; border-radius: 2px; font-size: 7.5px; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; }
-  .pill-ok { background: #eaf5ee; color: #1a7a45; border: 1px solid #bfe0cc; }
-  .net-settlement { border: 1px solid #dde0e5; margin: 14px 0; }
-  .ns-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 14px; border-bottom: 1px solid #eef0f3; font-size: 9.5px; }
-  .ns-row:last-child { border-bottom: none; }
-  .ns-label { color: #444; }
-  .ns-val { font-weight: 500; font-variant-numeric: tabular-nums; color: #111; white-space: nowrap; margin-left: 16px; }
-  .ns-row.ns-deduct .ns-val { color: #b91c1c; }
-  .ns-row.ns-total { background: #1c1c1c; padding: 10px 14px; }
-  .ns-row.ns-total .ns-label { font-weight: 700; font-size: 11px; color: #fff; letter-spacing: 0.3px; }
-  .ns-row.ns-total .ns-val { font-weight: 700; font-size: 13px; color: #fff; }
-  .disclaimer { margin-top: 13px; padding: 8px 11px; border: 1px solid #e8eaed; background: #fafafa; font-size: 8px; color: #777; line-height: 1.65; }
-  .page-footer { flex-shrink: 0; margin-top: auto; border-top: 1px solid #dde0e5; padding: 5px 36px; display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; }
-  .pf-left { font-size: 7.5px; color: #aaa; }
-  .pf-center { font-size: 7.5px; color: #aaa; text-align: center; }
-  .pf-right { font-size: 7.5px; color: #aaa; text-align: right; }
-  @media print {
-    html, body { background: white; }
-    .print-page { margin: 0; box-shadow: none; width: 210mm; min-height: 297mm; height: 297mm; max-width: 100%; page-break-after: always; break-after: page; }
-    .print-page:last-child { page-break-after: auto; break-after: auto; }
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    @page { margin: 0; size: A4 portrait; }
-  }
-</style>
-</head>
-<body>
-
-<div class="print-page">
-  <div class="lh-header">
-    <div class="lh-logo">
-      <img src="https://www.tikxz.com/logo.png" alt="Tikxz" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-      <span class="lh-logo-text">TIKXZ</span>
-    </div>
-    <div class="lh-contact">www.tikxz.com &nbsp;|&nbsp; hello@tikxz.com<br>support@tikxz.com &nbsp;|&nbsp; +91 94046 35944</div>
-  </div>
-  <div class="lh-rule"></div>
-  <div class="doc-title-band">
-    <h1>Transaction Ledger &amp; Settlement Statement</h1>
-    <div class="doc-ref">
-      <div class="ref-meta"><strong>${f.orgName}</strong>Period: ${f.period}</div>
-      <span class="ref-pill">${f.ref}</span>
-      <span class="pg-label">Pg 1 / 2</span>
-    </div>
-  </div>
-  <div class="body-pad">
-    <div class="info-grid">
-      <div class="info-col">
-        <div class="info-col-title">Organiser Information</div>
-        <div class="info-row"><span class="info-label">Organisation Name</span><span class="info-value">${f.orgName}</span></div>
-        <div class="info-row"><span class="info-label">Organisation Type</span><span class="info-value">${f.orgType}</span></div>
-        <div class="info-row"><span class="info-label">Authorised Signatory</span><span class="info-value">${f.signatory}</span></div>
-        <div class="info-row"><span class="info-label">Email</span><span class="info-value">${f.email}</span></div>
-        <div class="info-row"><span class="info-label">Mobile</span><span class="info-value">—</span></div>
-        <div class="info-row"><span class="info-label">CIN / LLPIN</span><span class="info-value">${f.cin}</span></div>
-        <div class="info-row"><span class="info-label">PAN Number</span><span class="info-value">${f.pan}</span></div>
-        <div class="info-row"><span class="info-label">Aadhaar Number</span><span class="info-value">${f.aadhaar}</span></div>
-        <div class="info-row"><span class="info-label">GST Number</span><span class="info-value">${f.gst}</span></div>
-      </div>
-      <div class="info-col">
-        <div class="info-col-title">Bank &amp; Settlement Details</div>
-        <div class="info-row"><span class="info-label">Account Holder</span><span class="info-value">${f.accHolder}</span></div>
-        <div class="info-row"><span class="info-label">Bank Name</span><span class="info-value">${f.bank}</span></div>
-        <div class="info-row"><span class="info-label">Account Number</span><span class="info-value">${f.accNo}</span></div>
-        <div class="info-row"><span class="info-label">IFSC Code</span><span class="info-value">${f.ifsc}</span></div>
-        <div class="info-row"><span class="info-label">Settlement Date</span><span class="info-value">${f.settleDate}</span></div>
-        <div class="info-row"><span class="info-label">Settlement Cycle</span><span class="info-value">${f.settleCycle}</span></div>
-        <hr class="info-divider">
-        <div class="info-row"><span class="info-label">Platform Fee (Tikxz)</span><span class="info-value">${f.platformFee}</span></div>
-        <div class="info-row"><span class="info-label">PG Fee (Cashfree)</span><span class="info-value">${f.pgPct}, borne by customer</span></div>
-        <div class="pg-logo-row">
-          <span class="info-label" style="color:#666;">Payment Gateway</span>
-          <img src="https://cashfreelogo.cashfree.com/website/landings/homepage/cashfreeLogo.png" alt="Cashfree Payments" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
-          <span class="pg-fallback">Cashfree Payments</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="sec-head" style="margin-top:0;">Collection Summary</div>
-    <div class="stat-row">
-      <div class="stat-cell"><div class="st-label">Gross Ticket Revenue</div><div class="st-val">&#8377;${fmt(grossTicket)}</div><div class="st-note">Face value &middot; ${n} orders</div></div>
-      <div class="stat-cell"><div class="st-label">PG Transaction Fees</div><div class="st-val">&#8377;${fmt(totalPG)}</div><div class="st-note">Cashfree &middot; paid by customer</div></div>
-      <div class="stat-cell"><div class="st-label">Total Refunds</div><div class="st-val">&#8377;0.00</div><div class="st-note">0 refunds</div></div>
-      <div class="stat-cell"><div class="st-label">Net Payable to Organiser</div><div class="st-val">&#8377;${fmt(grossTicket)}</div><div class="st-note">After all deductions</div></div>
-    </div>
-
-    <div class="sec-head">Detailed Transaction Log &middot; All ${n} Transactions &middot; Chronological Order</div>
-    <table>
-      <thead><tr>
-        <th style="width:20px;">#</th>
-        <th style="width:100px;">Date &amp; Time</th>
-        <th>Order Reference</th>
-        <th>Ticket Type</th>
-        <th style="width:62px;">Mode</th>
-        <th class="r" style="width:68px;">Ticket (&#8377;)</th>
-        <th class="r" style="width:58px;">PG Fee (&#8377;)</th>
-        <th class="r" style="width:66px;">Total (&#8377;)</th>
-        <th style="width:64px;">Status</th>
-      </tr></thead>
-      <tbody>${txRows}</tbody>
-      <tfoot><tr>
-        <td colspan="5">Gross Total, All ${n} Transactions</td>
-        <td class="r">${fmt(grossTicket)}</td>
-        <td class="r">${fmt(totalPG)}</td>
-        <td class="r">${fmt(totalCollected)}</td>
-        <td></td>
-      </tr></tfoot>
-    </table>
-  </div>
-  <div class="page-footer">
-    <div class="pf-left">Confidential &middot; For Organiser Use Only</div>
-    <div class="pf-center">Tikxz &middot; www.tikxz.com &middot; support@tikxz.com &middot; +91 94046 35944</div>
-    <div class="pf-right">Page 1 of 2</div>
-  </div>
-</div>
-
-<div class="print-page">
-  <div class="lh-header">
-    <div class="lh-logo">
-      <img src="https://www.tikxz.com/logo.png" alt="Tikxz" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-      <span class="lh-logo-text">TIKXZ</span>
-    </div>
-    <div class="lh-contact">www.tikxz.com &nbsp;|&nbsp; hello@tikxz.com<br>support@tikxz.com &nbsp;|&nbsp; +91 94046 35944</div>
-  </div>
-  <div class="lh-rule"></div>
-  <div class="doc-title-band">
-    <h1>Transaction Ledger &amp; Settlement Statement</h1>
-    <div class="doc-ref">
-      <div class="ref-meta"><strong>${f.orgName}</strong>Period: ${f.period}</div>
-      <span class="ref-pill">${f.ref}</span>
-      <span class="pg-label">Pg 2 / 2</span>
-    </div>
-  </div>
-  <div class="body-pad">
-    <div class="sec-head" style="margin-top:0;">Settled Ticket Sales &middot; ${n} Confirmed Orders</div>
-    <table>
-      <thead><tr>
-        <th style="width:44%">Ticket Type</th>
-        <th class="r">Units Sold</th>
-        <th class="r">Unit Price (&#8377;)</th>
-        <th class="r">Ticket Revenue (&#8377;)</th>
-        <th class="r">PG Fee Collected (&#8377;)</th>
-        <th class="r">Total Collected (&#8377;)</th>
-      </tr></thead>
-      <tbody>${summaryRows}</tbody>
-      <tfoot><tr>
-        <td>Total Settled Revenue</td>
-        <td class="r">${n}</td>
-        <td class="r"></td>
-        <td class="r">${fmt(grossTicket)}</td>
-        <td class="r">${fmt(totalPG)}</td>
-        <td class="r">${fmt(totalCollected)}</td>
-      </tr></tfoot>
-    </table>
-
-    <div class="sec-head">Deductions from Settled Collections</div>
-    <table>
-      <thead><tr>
-        <th style="width:55%">Deduction</th>
-        <th class="r">Rate / Basis</th>
-        <th class="r">Orders</th>
-        <th class="r">Amount (&#8377;)</th>
-      </tr></thead>
-      <tbody>
-        <tr>
-          <td>Payment Gateway Fee (Cashfree) &nbsp;&middot;&nbsp; ${deductParts}</td>
-          <td class="r">${f.pgPct} per order</td>
-          <td class="r">${n}</td>
-          <td class="r neg">(${fmt(totalPG)})</td>
-        </tr>
-        <tr>
-          <td>Platform Fee (Tikxz)</td>
-          <td class="r">0.00% — Waived</td>
-          <td class="r">${n}</td>
-          <td class="r">0.00</td>
-        </tr>
-      </tbody>
-      <tfoot><tr>
-        <td colspan="3">Total Deductions</td>
-        <td class="r neg">(${fmt(totalPG)})</td>
-      </tr></tfoot>
-    </table>
-
-    <div class="net-settlement">
-      <div class="ns-row"><span class="ns-label">Settled Collections (${n} Orders, incl. PG Fee collected from customers)</span><span class="ns-val">&#8377; ${fmt(totalCollected)}</span></div>
-      <div class="ns-row ns-deduct"><span class="ns-label">Less: PG Fee Retained by Cashfree</span><span class="ns-val">&minus; &#8377; ${fmt(totalPG)}</span></div>
-      <div class="ns-row ns-total"><span class="ns-label">NET PAYABLE TO ORGANISER</span><span class="ns-val">&#8377; ${fmt(grossTicket)}</span></div>
-    </div>
-
-    <div class="sec-head">Settlement Transfer Details</div>
-    <table>
-      <thead><tr><th style="width:30%">Field</th><th>Details</th><th style="width:22%" class="r">Value</th></tr></thead>
-      <tbody>
-        <tr><td>Beneficiary Name</td><td>${f.accHolder}</td><td class="r">—</td></tr>
-        <tr><td>Bank &amp; Account</td><td>${f.bank} &nbsp;&middot;&nbsp; ${f.accNo}</td><td class="r">${f.ifsc}</td></tr>
-        <tr><td>Transfer Amount</td><td>Net payable as computed above</td><td class="r" style="font-weight:700;color:#111;">&#8377; ${fmt(grossTicket)}</td></tr>
-        <tr><td>Settlement Date</td><td>${f.settleDate} &nbsp;&middot;&nbsp; Cycle ${f.settleCycle} from transaction date ${f.txnDate}</td><td class="r">—</td></tr>
-        <tr><td>Transfer Mode</td><td>${f.transferMode}</td><td class="r">—</td></tr>
-      </tbody>
-    </table>
-
-    <div class="disclaimer"><strong>Note:</strong> ${f.disclaimer}</div>
-  </div>
-  <div class="page-footer">
-    <div class="pf-left">Confidential &middot; For Organiser Use Only</div>
-    <div class="pf-center">Tikxz &middot; www.tikxz.com &middot; support@tikxz.com &middot; +91 94046 35944</div>
-    <div class="pf-right">Page 2 of 2</div>
-  </div>
-</div>
-
-</body></html>`;
-
-  // Inject into iframe
-  const iframe = document.getElementById('preview-iframe');
-  iframe.srcdoc = html;
-  window._ledgerHTML = html;
-
-  document.getElementById('preview-section').classList.add('show');
-  setTimeout(() => {
-    document.getElementById('preview-section').scrollIntoView({behavior:'smooth'});
-  }, 100);
-}
-
-// ─── Print ────────────────────────────────────────────────
-function printLedger() {
-  const iframe = document.getElementById('preview-iframe');
-  if (iframe.contentWindow) {
-    iframe.contentWindow.focus();
-    iframe.contentWindow.print();
-  }
-}
-
-// ─── Reset ────────────────────────────────────────────────
-function resetAll() {
-  transactions = [];
-  ticketTypes = {};
-  document.getElementById('csv-input').value = '';
-  document.getElementById('file-badge').classList.remove('show');
-  document.getElementById('editor-section').classList.remove('show');
-  document.getElementById('preview-section').classList.remove('show');
-  document.getElementById('upload-section').scrollIntoView({behavior:'smooth'});
-}
-
-// ─── File Input Events ────────────────────────────────────
-document.getElementById('csv-input').addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  document.getElementById('file-badge-name').textContent = file.name;
-  document.getElementById('file-badge').classList.add('show');
-  loadCSV(file);
-});
-
-const dz = document.getElementById('drop-zone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-dz.addEventListener('drop', e => {
-  e.preventDefault();
-  dz.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) {
-    document.getElementById('file-badge-name').textContent = file.name;
-    document.getElementById('file-badge').classList.add('show');
-    loadCSV(file);
-  }
-});
-
-// Live re-render on field change
-document.querySelectorAll('input, select, textarea').forEach(el => {
-  el.addEventListener('change', () => {
-    if (document.getElementById('preview-section').classList.contains('show')) {
-      generateLedger();
-    }
-    updateStats();
-  });
-});
 </script>
 </body>
 </html>
